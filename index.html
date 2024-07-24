@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Relic Data Redeem (RDR)</title>
+  <style>
+  *{
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+    div{
+      max-width: 500px;
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin: 10px auto;
+    }
+    h3{
+      text-align: center;
+      text-transform: capitalize;
+    }
+    .buttons button{
+      border:none;
+      outline: none;
+      padding: 7px;
+      background: #555;
+      color: white;
+      border-radius: 3px;
+    }
+    input,textarea{
+      width: 100%;
+      outline: none;
+      border: 1px solid #039366;
+      padding: 10px;
+      border-radius: 3px;
+    }
+    #convert{
+      width: 80%;
+      background: #039366;
+      color: white;
+      border: none;
+      outline: none;
+      padding: 10px;
+      border-radius: 3px;
+    }
+    .conv-share{
+      display: flex;
+    }
+    .conv-share #button{
+      width:calc( 20% - 5px);
+      background: #333;
+      border: none;
+      outline: none;
+      border-radius: 3px;
+      color: white;
+      margin-left: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="buttons">
+    <button id="encodeBtn" onclick="changeMode('encode');">Encode</button>
+    <button id="decodeBtn" onclick="changeMode('decode');">Decode</button>
+    <button id="keyGenBtn" onclick="keyGen()">Key Generate</button>
+  </div>
+   <h3>Mode <span id="modeText">Encode</span></h3>
+  <div>
+    <label for="key">
+     Key <input type="text" id="key">
+    </label>
+    <label for="data">
+      Data <textarea id="data" cols="30" rows="10"></textarea>
+    </label>
+    <label for="result">
+      Result <textarea id="result" cols="30" rows="10"></textarea>
+    </label>
+
+  </div>
+  <div class="conv-share">
+    <button id="convert">Convert</button>
+    <button id="button">Share</button>
+  </div>
+  
+  <div>
+    <p class="result"></p>
+  </div>
+  
+  <script>
+    let originalKey="ABCDEFGHIJKLMNOPQRSTUVWXYZ .abcdefghijklmnopqrstuvwxyz1234567890@#*&";
+    let modeText= document.getElementById('modeText');
+    let keyValue= document.getElementById('key');
+    let dataValue= document.getElementById('data');
+    let resultValue= document.getElementById('result');
+    let convertBtn= document.getElementById('convert');
+    
+    var mode='encode';
+    function changeMode(data){
+      mode=data;
+      modeText.innerHTML=data;
+    }
+    convertBtn.addEventListener('click',function(){
+      if(mode==='encode'){
+        encode(dataValue.value,keyValue.value);
+      }else if(mode==='decode'){
+        decode(dataValue.value,keyValue.value);
+      }else{
+        alert('Unknown Mode!');
+      }
+    });
+    
+    function keyGen(){
+      let keys=originalKey.split('');
+      let dt=Array();
+      let len=keys.length;
+      for(let i=0;i<len;i++){
+        let rn=Math.floor(Math.random()*40);
+        if(keys[rn]==undefined){
+          dt[i]=keys[0];
+          keys.splice(0,1);
+        }else{
+          dt[i]=keys[rn];
+          keys.splice(rn,1);
+        }
+      }
+      let result=dt.join('');
+      keyValue.value=result;
+      
+    }
+    
+    
+    function encode(originalData,key){
+      let arrData= originalData.split('');
+      let len=arrData.length;
+      let newData='';
+      for(let i=0;i<len;i++){
+        keyIndex=originalKey.indexOf(originalData[i]);
+        if(key[keyIndex]!==undefined){
+         newData+=key[keyIndex];
+        }else{
+         newData+=originalData[i];
+        }
+      }
+      resultValue.value=newData;
+    }
+    function decode(originalData,key){
+      let arrData= originalData.split('');
+      let len=arrData.length;
+      let newData='';
+      for(let i=0;i<len;i++){
+        keyIndex=key.indexOf(originalData[i]);
+        if(key[keyIndex]!==undefined){
+         newData+=originalKey[keyIndex];
+        }else{
+         newData+=originalData[i];
+        }
+      }
+      resultValue.value=newData;
+    }
+    
+    
+    
+
+    const btn = document.querySelector("#button");
+    const resultPara = document.querySelector(".result");
+
+btn.addEventListener("click", async () => {
+  try {
+    let shareData = {
+      title: "RDR",
+      text: resultValue.value,
+      //url: window.location.href,
+    };
+    await navigator.share(shareData);
+    //resultPara.textContent = "Shared successfully";
+  } catch (err) {
+    //resultPara.textContent = `Error: ${err}`;
+    console.log(`Error: ${err}`);
+  }
+});
+
+    
+    
+  </script>
+</body>
+</html>
