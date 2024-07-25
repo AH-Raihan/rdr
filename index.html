@@ -11,8 +11,11 @@
     padding: 0;
     margin: 0;
   }
+  body.dark{
+    background: #111;
+  }
     div{
-      max-width: 500px;
+      max-width: 800px;
       width: calc(100% - 20px);
       padding: 10px;
       margin: 10px auto;
@@ -29,16 +32,29 @@
       color: white;
       border-radius: 3px;
     }
+    .buttons #darkBtn{
+      float: right;
+    }
+    .buttons #keyGenBtn{
+      background: #358;
+    }
     input,textarea{
       width: 100%;
       outline: none;
-      border: 1px solid #039366;
+      border: 1px solid #26906C;
       padding: 10px;
       border-radius: 3px;
     }
+    body.dark input,body.dark textarea{
+      background: #222;
+      color: white;
+    }
+    body.dark label,body.dark h3{
+      color: white;
+    }
     #convert{
       width: 80%;
-      background: #039366;
+      background: #26906C;
       color: white;
       border: none;
       outline: none;
@@ -59,13 +75,15 @@
     }
   </style>
 </head>
-<body>
+<body id="body">
   <div class="buttons">
-    <button id="encodeBtn" onclick="changeMode('encode');">Encode</button>
-    <button id="decodeBtn" onclick="changeMode('decode');">Decode</button>
+    <button id="encodeBtn" onclick="changeMode('encode');">Encode ↑</button>
+    <button id="decodeBtn" onclick="changeMode('decode');">Decode ↓</button>
     <button id="keyGenBtn" onclick="keyGen()">Key Generate</button>
+    
+    <button id="darkBtn" onclick="darkMode()">Dark</button>
   </div>
-   <h3>Mode <span id="modeText">Encode</span></h3>
+   <h3><span id="modeText">Encode</span> Mode</h3>
   <div>
     <label for="key">
      Key <input type="text" id="key">
@@ -109,7 +127,6 @@
         alert('Unknown Mode!');
       }
     });
-    
     function keyGen(){
       let keys=originalKey.split('');
       let dt=Array();
@@ -128,8 +145,6 @@
       keyValue.value=result;
       
     }
-    
-    
     function encode(originalData,key){
       let arrData= originalData.split('');
       let len=arrData.length;
@@ -158,29 +173,39 @@
       }
       resultValue.value=newData;
     }
-    
-    
-    
 
     const btn = document.querySelector("#button");
     const resultPara = document.querySelector(".result");
 
-btn.addEventListener("click", async () => {
-  try {
-    let shareData = {
-      title: "RDR",
-      text: resultValue.value,
-      //url: window.location.href,
-    };
-    await navigator.share(shareData);
-    //resultPara.textContent = "Shared successfully";
-  } catch (err) {
-    //resultPara.textContent = `Error: ${err}`;
-    console.log(`Error: ${err}`);
+  btn.addEventListener("click", async () => {
+    try {
+      let shareData = {
+        title: "RDR",
+        text: resultValue.value,
+        //url: window.location.href,
+      };
+      await navigator.share(shareData);
+      //resultPara.textContent = "Shared successfully";
+    } catch (err) {
+      //resultPara.textContent = `Error: ${err}`;
+      console.log(`Error: ${err}`);
+    }
+  });
+  let body = document.getElementById('body');
+  if(localStorage.getItem('dark')==='on'){
+        body.classList.add('dark');
+  }else{
+        body.classList.remove('dark');
   }
-});
-
-    
+    function darkMode(){
+      if(body.classList.contains('dark')==true){
+        body.classList.remove('dark');
+        localStorage.setItem('dark','off');
+      }else{
+        body.classList.add('dark');
+        localStorage.setItem('dark','on');
+      }
+    }
     
   </script>
 </body>
