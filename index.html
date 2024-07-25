@@ -45,6 +45,21 @@
       padding: 10px;
       border-radius: 3px;
     }
+    .keyBox{
+      width: 100%;
+      display: flex;
+      align-items: stretch;
+      padding: 0;
+    }
+    .keyBox input{
+      border-radius: 3px 0 0 3px;
+    }
+    .keyBox #keySaveBtn{
+      display: block;
+      width: 60px;
+      border: 1px solid #26906C;
+      border-radius: 0 3px 3px 0;
+    }
     body.dark input,body.dark textarea{
       background: #222;
       color: white;
@@ -86,13 +101,17 @@
    <h3><span id="modeText">Encode</span> Mode</h3>
   <div>
     <label for="key">
-     Key <input type="text" id="key">
+     Key 
+     <div class="keyBox">
+      <input type="search" id="key">
+      <button id="keySaveBtn">Save</button>
+     </div>
     </label>
     <label for="data">
-      Data <textarea id="data" cols="30" rows="10"></textarea>
+      Data <textarea id="data" cols="30" rows="10" ondblclick="this.value=''"></textarea>
     </label>
     <label for="result">
-      Result <textarea id="result" cols="30" rows="10"></textarea>
+      Result <textarea id="result" cols="30" rows="10" ondblclick="this.value=''"></textarea>
     </label>
 
   </div>
@@ -109,6 +128,7 @@
     let originalKey="ABCDEFGHIJKLMNOPQRSTUVWXYZ .abcdefghijklmnopqrstuvwxyz1234567890@#*&";
     let modeText= document.getElementById('modeText');
     let keyValue= document.getElementById('key');
+    let keySaveBtn= document.getElementById('keySaveBtn');
     let dataValue= document.getElementById('data');
     let resultValue= document.getElementById('result');
     let convertBtn= document.getElementById('convert');
@@ -204,6 +224,24 @@
       }else{
         body.classList.add('dark');
         localStorage.setItem('dark','on');
+      }
+    }
+    
+    if(localStorage.getItem('key')){
+        keyValue.value=localStorage.getItem('key');
+        keySaveBtn.innerHTML='Saved'
+    }else{
+       keySaveBtn.innerHTML='Save';
+    }
+    
+    keySaveBtn.addEventListener('click',saveKey);
+    function saveKey(){
+      if(keySaveBtn.innerHTML==='Saved'){
+        keySaveBtn.innerHTML='Save';
+        localStorage.removeItem('key');
+      }else{
+        keySaveBtn.innerHTML='Saved'
+        localStorage.setItem('key',keyValue.value);
       }
     }
     
