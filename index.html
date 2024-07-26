@@ -54,17 +54,28 @@
     .keyBox input{
       border-radius: 3px 0 0 3px;
     }
-    .keyBox #keySaveBtn{
+    .keyBox button{
       display: block;
-      width: 60px;
       border: 1px solid #26906C;
+    }
+    .keyBox #keySaveBtn{
       border-radius: 0 3px 3px 0;
+      width: 60px;
+    }
+    .keyBox #keyQrBtn{
+      width: 40px;
+      background: #ddd;
+      border-left:none;
+      border-right: none;
+    }
+    .keyBox #keyCopyBtn{
+      width: 60px;
     }
     body.dark input,body.dark textarea{
       background: #222;
       color: white;
     }
-    body.dark label,body.dark h3{
+    body.dark label,body.dark h3,body.dark #qrTitle{
       color: white;
     }
     #convert{
@@ -98,6 +109,12 @@
       padding: 5px;
       text-decoration: none;
     }
+    .canvasBox{
+      text-align: center;
+    }
+    .qrBtn,#resCopy{
+      padding: 2px;
+    }
   </style>
 </head>
 <body id="body">
@@ -114,14 +131,19 @@
      Key 
      <div class="keyBox">
       <input type="search" id="key">
+      <button id="keyCopyBtn" onclick="copyFunction('key','keyCopyBtn')">Copy</button>
+      <button id="keyQrBtn" onclick="generateQRCode('key','Key')"> QR </button>
       <button id="keySaveBtn">Save</button>
      </div>
     </label>
     <label for="data">
-      Data <textarea id="data" cols="30" rows="10" ondblclick="this.value=''"></textarea>
+      Data <button class="qrBtn" onclick="generateQRCode('data','Data');">QR Code</button>
+       <textarea id="data" cols="30" rows="10" ondblclick="this.value=''"></textarea>
     </label>
     <label for="result">
-      Result <textarea id="result" cols="30" rows="10" ondblclick="this.value=''"></textarea>
+      Result <button class="qrBtn" onclick="generateQRCode('result','Result');">QR Code</button>
+      <button onclick="copyFunction('result','resCopy')" id="resCopy">Copy</button>
+      <textarea id="result" cols="30" rows="10" ondblclick="this.value=''"></textarea>
     </label>
 
   </div>
@@ -129,14 +151,23 @@
     <button id="convert">Convert</button>
     <button id="button">Share</button>
   </div>
-  
+  <div class="canvasBox">
+    <p id="qrTitle"></p>
+  <canvas id="canvas"></canvas>
+  </div>
   <div class="downloadBox">
   <p class="result"></p>
+ 
+   <!-- <a class="download" href="#" onclick="javascript:oldVersion();this.style.background='teal';">Old Version</a> -->
+   <a class="download" href="qrscanner.html">QR Scanner</a>
    <a class="download" href="rdr.apk" download>Download App</a>
   </div>
+ 
   
   <script>
-    let originalKey="ABCDEFGHIJKLMNOPQRSTUVWXYZ .abcdefghijklmnopqrstuvwxyz1234567890@#*&";
+    let oldOriginalKey="ABCDEFGHIJKLMNOPQRSTUVWXYZ .abcdefghijklmnopqrstuvwxyz1234567890@#*&";
+    let NewOriginalKey='অAআBইCঈDউEঊFঋGএHঐIওJঔKকLখMগNঘOঙPচQছRজSঝTঞUটVঠWডXঢYণZতaথbদcধdনeপfফgবhভiমjযklলmশnষoসpহqr়stuvwxyz1234567890-=,.;!@#$%&*()_+":<>?|~';
+    let originalKey=NewOriginalKey;
     let modeText= document.getElementById('modeText');
     let keyValue= document.getElementById('key');
     let keySaveBtn= document.getElementById('keySaveBtn');
@@ -174,7 +205,6 @@
       }
       let result=dt.join('');
       keyValue.value=result;
-      
     }
     function encode(originalData,key){
       let arrData= originalData.split('');
@@ -204,10 +234,9 @@
       }
       resultValue.value=newData;
     }
-
     const btn = document.querySelector("#button");
     const resultPara = document.querySelector(".result");
-
+document.write("়".slice(1,2,1));
   btn.addEventListener("click", async () => {
     try {
       let shareData = {
@@ -256,6 +285,49 @@
       }
     }
     
+    
   </script>
+  
+  
+   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+  <script>
+
+  function generateQRCode(inp,title) {
+    const input = document.getElementById(inp).value;
+    const qrTitle = document.getElementById('qrTitle');
+
+    if (!input) {
+        alert("Please enter text to generate QR code.");
+        qrTitle.innerHTML='';
+        return;
+    }
+    const canvas = document.getElementById('canvas');
+    QRCode.toCanvas(canvas, input, function (error) {
+        if (error) console.error(error);
+        qrTitle.innerHTML='';
+    });
+    qrTitle.innerHTML=title;
+}
+
+
+
+function copyFunction(inp,btn) {
+  // Get the text field
+  var copyText = document.getElementById(inp);
+  var copyTextBtn = document.getElementById(btn);
+  
+
+  // Select the text field
+  copyText.select();
+  copyText.setSelectionRange(0, 99999); // For mobile devices
+
+   // Copy the text inside the text field
+  navigator.clipboard.writeText(copyText.value);
+  copyTextBtn.innerHTML='Copied';
+  setTimeout(function(){
+    copyTextBtn.innerHTML='Copy';}
+    ,2000);
+}
+    </script>
 </body>
 </html>
