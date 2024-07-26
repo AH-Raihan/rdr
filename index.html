@@ -138,22 +138,18 @@
     </label>
     <label for="data">
       Data <button class="qrBtn" onclick="generateQRCode('data','Data');">QR Code</button>
-       <textarea id="data" cols="30" rows="10" ondblclick="this.value=''"></textarea>
+       <textarea id="data" cols="30" rows="7" ondblclick="this.value=''"></textarea>
     </label>
     <label for="result">
       Result <button class="qrBtn" onclick="generateQRCode('result','Result');">QR Code</button>
       <button onclick="copyFunction('result','resCopy')" id="resCopy">Copy</button>
-      <textarea id="result" cols="30" rows="10" ondblclick="this.value=''"></textarea>
+      <textarea id="result" cols="30" rows="7" ondblclick="this.value=''"></textarea>
     </label>
 
   </div>
   <div class="conv-share">
     <button id="convert">Convert</button>
     <button id="button">Share</button>
-  </div>
-  <div class="canvasBox">
-    <p id="qrTitle"></p>
-  <canvas id="canvas"></canvas>
   </div>
   <div class="downloadBox">
   <p class="result"></p>
@@ -162,7 +158,11 @@
    <a class="download" href="qrscanner.html">QR Scanner</a>
    <a class="download" href="rdr.apk" download>Download App</a>
   </div>
- 
+  <div class="canvasBox">
+    <p id="qrTitle"></p>
+  <canvas id="canvas"></canvas>
+  </div>
+  <p align="center">Powered By Relic Software</p>
   
   <script>
     let oldOriginalKey="ABCDEFGHIJKLMNOPQRSTUVWXYZ .abcdefghijklmnopqrstuvwxyz1234567890@#*&";
@@ -236,7 +236,7 @@
     }
     const btn = document.querySelector("#button");
     const resultPara = document.querySelector(".result");
-document.write("়".slice(1,2,1));
+
   btn.addEventListener("click", async () => {
     try {
       let shareData = {
