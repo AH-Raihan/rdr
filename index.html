@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Relic Data Redeem (RDR)</title>
+  <style>
+  *{
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+  body.dark{
+    background: #111;
+  }
+    div{
+      max-width: 800px;
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin: 10px auto;
+    }
+    h3{
+      text-align: center;
+      text-transform: capitalize;
+    }
+    .buttons button{
+      border:none;
+      outline: none;
+      padding: 7px;
+      background: #555;
+      color: white;
+      border-radius: 3px;
+    }
+    .buttons #darkBtn{
+      float: right;
+    }
+    .buttons #keyGenBtn{
+      background: #358;
+    }
+    input,textarea{
+      width: 100%;
+      outline: none;
+      border: 1px solid #26906C;
+      padding: 10px;
+      border-radius: 3px;
+    }
+    .keyBox{
+      width: 100%;
+      display: flex;
+      align-items: stretch;
+      padding: 0;
+    }
+    .keyBox input{
+      border-radius: 3px 0 0 3px;
+    }
+    .keyBox button{
+      display: block;
+      border: 1px solid #26906C;
+    }
+    .keyBox #keySaveBtn{
+      border-radius: 0 3px 3px 0;
+      width: 60px;
+    }
+    .keyBox #keyQrBtn{
+      width: 40px;
+      background: #ddd;
+      border-left:none;
+      border-right: none;
+    }
+    .keyBox #keyCopyBtn{
+      width: 60px;
+    }
+    body.dark input,body.dark textarea{
+      background: #222;
+      color: white;
+    }
+    body.dark label,body.dark h3,body.dark #qrTitle{
+      color: white;
+    }
+    #convert{
+      width: 80%;
+      background: #26906C;
+      color: white;
+      border: none;
+      outline: none;
+      padding: 10px;
+      border-radius: 3px;
+    }
+    .conv-share{
+      display: flex;
+    }
+    .conv-share #button{
+      width:calc( 20% - 5px);
+      background: #333;
+      border: none;
+      outline: none;
+      border-radius: 3px;
+      color: white;
+      margin-left: 5px;
+    }
+    .downloadBox{
+      text-align: right;
+      font-size: 12px;
+    }
+    a.download{
+      background: #555;
+      color: #fff;
+      padding: 5px;
+      text-decoration: none;
+    }
+    .canvasBox{
+      text-align: center;
+    }
+    .qrBtn,#resCopy{
+      padding: 2px;
+    }
+    .center{
+      text-align: center;
+    }
+  </style>
+</head>
+<body id="body">
+  <div class="buttons">
+    <button id="encodeBtn" onclick="changeMode('encode');">Encode ↑</button>
+    <button id="decodeBtn" onclick="changeMode('decode');">Decode ↓</button>
+    <button id="keyGenBtn" onclick="keyGen()">Key Generate</button>
+    
+    <button id="darkBtn" onclick="darkMode()">Dark</button>
+  </div>
+   <h3><span id="modeText">Encode</span> Mode</h3>
+  <div>
+    <label for="key">
+     Key 
+     <div class="keyBox">
+      <input type="search" id="key">
+      <button id="keyCopyBtn" onclick="copyFunction('key','keyCopyBtn')">Copy</button>
+      <button id="keyQrBtn" onclick="generateQRCode('key','Key')"> QR </button>
+      <button id="keySaveBtn">Save</button>
+     </div>
+    </label>
+    <label for="data">
+      Data <button class="qrBtn" onclick="generateQRCode('data','Data');">QR Code</button>
+       <textarea id="data" cols="30" rows="7" ondblclick="this.value=''"></textarea>
+    </label>
+    <label for="result">
+      Result <button class="qrBtn" onclick="generateQRCode('result','Result');">QR Code</button>
+      <button onclick="copyFunction('result','resCopy')" id="resCopy">Copy</button>
+      <textarea id="result" cols="30" rows="7" ondblclick="this.value=''"></textarea>
+    </label>
+
+  </div>
+  <div class="conv-share">
+    <button id="convert">Convert</button>
+    <button id="button">Share</button> 
+   <!-- <a class="download" href="https://ah-raihan.github.io/rdr/qrscanner.html">QR Scanner</a> -->
+  </div>
+  <div class="canvasBox">
+    <p id="qrTitle"></p>
+  <canvas id="canvas"></canvas>
+  </div>
+  <div class="downloadBox">
+  <p class="result"></p>
+ 
+   <a class="download" href="https://ah-raihan.github.io/rdr/qrscanner.html">QR Scanner</a>
+<a class="download" href="rdr.apk" download>Download App</a>
+  </div>
+ <p align="center">Powered By Relic Software(Raihan)</p>
+<p class="center">
+  <a href="https://rdr.relicsoftwares.com">Website</a>
+</p>
+
+<script src="aes.js"></script>
+<script src="pbkdf2.js"></script>
+  
+  <script>
+    let oldOriginalKey="ABCDEFGHIJKLMNOPQRSTUVWXYZ .abcdefghijklmnopqrstuvwxyz1234567890@#*&";
+    let NewOriginalKey='অAআBইCঈDউEঊFঋGএHঐIওJঔKকLখMগNঘOঙPচQছRজSঝTঞUটVঠWডXঢYণZতaথbদcধdনeপfফgবhভiমjযklলmশnষoসpহqr়st uvwxyz1234567890-=,.;!@#$%&*()_+":<>?|~';
+    let originalKey=NewOriginalKey;
+    let modeText= document.getElementById('modeText');
+    let keyValue= document.getElementById('key');
+    let keySaveBtn= document.getElementById('keySaveBtn');
+    let dataValue= document.getElementById('data');
+    let resultValue= document.getElementById('result');
+    let convertBtn= document.getElementById('convert');
+    
+    var mode='encode';
+    function changeMode(data){
+      mode=data;
+      modeText.innerHTML=data;
+    }
+    convertBtn.addEventListener('click',function(){
+      if(mode==='encode'){
+        encode(dataValue.value,keyValue.value);
+      }else if(mode==='decode'){
+        decode(dataValue.value,keyValue.value);
+      }else{
+        alert('Unknown Mode!');
+      }
+    });
+    function keyGen(){
+      let keys=originalKey.split('');
+      let dt=Array();
+      let len=keys.length;
+      for(let i=0;i<len;i++){
+        let rn=Math.floor(Math.random()*40);
+        if(keys[rn]==undefined){
+          dt[i]=keys[0];
+          keys.splice(0,1);
+        }else{
+          dt[i]=keys[rn];
+          keys.splice(rn,1);
+        }
+      }
+      let result=dt.join('');
+      keyValue.value=result;
+    }
+    function encode(originalData,key){
+      let arrData= originalData.split('');
+      let len=arrData.length;
+      let newData='';
+      for(let i=0;i<len;i++){
+        keyIndex=originalKey.indexOf(originalData[i]);
+        if(key[keyIndex]!==undefined){
+         newData+=key[keyIndex];
+        }else{
+         newData+=originalData[i];
+        }
+      }
+      resultValue.value=CryptoJS.AES.encrypt(originalData,key).toString();
+    }
+    function decode(originalData,key){
+      let arrData= originalData.split('');
+      let len=arrData.length;
+      let newData='';
+      for(let i=0;i<len;i++){
+        keyIndex=key.indexOf(originalData[i]);
+        if(key[keyIndex]!==undefined){
+         newData+=originalKey[keyIndex];
+        }else{
+         newData+=originalData[i];
+        }
+      }
+      resultValue.value=CryptoJS.AES.decrypt(originalData,key).toString(CryptoJS.enc.Utf8);
+    }
+   
+  let body = document.getElementById('body');
+  if(localStorage.getItem('dark')==='on'){
+        body.classList.add('dark');
+  }else{
+        body.classList.remove('dark');
+  }
+    function darkMode(){
+      if(body.classList.contains('dark')==true){
+        body.classList.remove('dark');
+        localStorage.setItem('dark','off');
+      }else{
+        body.classList.add('dark');
+        localStorage.setItem('dark','on');
+      }
+    }
+    
+    if(localStorage.getItem('key')){
+        keyValue.value=localStorage.getItem('key');
+        keySaveBtn.innerHTML='Saved'
+    }else{
+       keySaveBtn.innerHTML='Save';
+    }
+    
+    keySaveBtn.addEventListener('click',saveKey);
+    function saveKey(){
+      if(keySaveBtn.innerHTML==='Saved'){
+        keySaveBtn.innerHTML='Save';
+        localStorage.removeItem('key');
+      }else{
+        keySaveBtn.innerHTML='Saved'
+        localStorage.setItem('key',keyValue.value);
+      }
+    }
+    
+    
+  </script>
+  
+  
+   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+  <script>
+
+  function generateQRCode(inp,title) {
+    const input = document.getElementById(inp).value;
+    const qrTitle = document.getElementById('qrTitle');
+
+    if (!input) {
+        alert("Please enter text to generate QR code.");
+        qrTitle.innerHTML='';
+        return;
+    }
+    const canvas = document.getElementById('canvas');
+    QRCode.toCanvas(canvas, input, function (error) {
+        if (error) console.error(error);
+        qrTitle.innerHTML='';
+    });
+    qrTitle.innerHTML=title;
+}
+
+
+
+function copyFunction(inp,btn) {
+  // Get the text field
+  var copyText = document.getElementById(inp);
+  var copyTextBtn = document.getElementById(btn);
+  
+
+  // Select the text field
+  copyText.select();
+  copyText.setSelectionRange(0, 99999); // For mobile devices
+
+   // Copy the text inside the text field
+  navigator.clipboard.writeText(copyText.value);
+  copyTextBtn.innerHTML='Copied';
+  setTimeout(function(){
+    copyTextBtn.innerHTML='Copy';}
+    ,2000);
+}
+    </script>
+    
+    
+
+
+<script>
+
+    var encrypted=CryptoJS.AES.encrypt("Hello Encrypted World!", "my secret key").toString()
+    var decrypted=CryptoJS.AES.decrypt(encrypted, "my secret key").toString(CryptoJS.enc.Utf8)
+
+    console.log("Encrypted: "+ encrypted)
+    console.log("Decrypted: "+ decrypted)
+
+</script>
+</body>
+</html>
